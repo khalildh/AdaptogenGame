@@ -9,7 +9,15 @@ export const HexGridPage = () => {
     useEffect(() => {
         // Initialize PIXI application
         appRef.current = new PIXI.Application({ backgroundAlpha: 0, width: 800, height: 600 });
-        
+        appRef.current.view.addEventListener('click', ({ offsetX, offsetY }) => {
+            const hex = grid.pointToHex(
+              { x: offsetX, y: offsetY },
+              { allowOutside: false }
+            )
+            console.log(hex)
+          });
+
+
         // Append the PIXI canvas to the container
         if (containerRef.current) {
             containerRef.current.appendChild(appRef.current.view);
@@ -30,6 +38,7 @@ export const HexGridPage = () => {
         // Cleanup function
         return () => {
             if (appRef.current) {
+                // appRef.current.view.removeEventListener('click', handleComponentClick);
                 appRef.current.destroy(true);
             }
         };
