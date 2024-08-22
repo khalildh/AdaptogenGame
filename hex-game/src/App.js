@@ -1,40 +1,33 @@
 import './App.css';
-import { useMemo } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { HomePage } from './components/HomePage';
+import { SecondPage } from './components/SecondPage';
+import { HexGridPage } from './components/HexGridPage';
 
-import { BlurFilter, TextStyle } from 'pixi.js';
-import { Stage, Container, Sprite, Text } from '@pixi/react';
+const App = () => (
+  <Router>
+    <div>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/second">Second Page</Link>
+          </li>
+          <li>
+            <Link to="/hex-grid">Hex Grid</Link>
+          </li>
+        </ul>
+      </nav>
 
-const App = () => {
-  const blurFilter = useMemo(() => new BlurFilter(2), []);
-  const bunnyUrl = 'https://pixijs.io/pixi-react/img/bunny.png';
-  return (
-    <Stage width={800} height={600} options={{ background: 0x1099bb }}>
-      <Sprite image={bunnyUrl} x={300} y={150} />
-      <Sprite image={bunnyUrl} x={500} y={150} />
-      <Sprite image={bunnyUrl} x={400} y={200} />
-
-      <Container x={200} y={200}>
-        <Text
-          text="Hello World"
-          anchor={0.5}
-          x={220}
-          y={150}
-          filters={[blurFilter]}
-          style={
-            new TextStyle({
-              align: 'center',
-              fill: '0xffffff',
-              fontSize: 50,
-              letterSpacing: 20,
-              dropShadow: true,
-              dropShadowColor: '#E72264',
-              dropShadowDistance: 6,
-            })
-          }
-        />
-      </Container>
-    </Stage>
-  );
-};
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/second" element={<SecondPage />} />
+        <Route path="/hex-grid" element={<HexGridPage Page />} />
+      </Routes>
+    </div>
+  </Router>
+);
 
 export default App;
