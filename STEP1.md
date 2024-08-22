@@ -15,5 +15,5 @@
 
 ### Hexagonal Grid Rendering:
 - [x] Implement a PIXI application instance in a React component
-- [ ] Create a hexagonal grid using PIXI.Graphics, and set up hexagonal tiling logic
-- [ ] Ensure each hex can be clicked, changing its color or texture as a visual feedback
+- [x] Create a hexagonal grid using PIXI.Graphics, and set up hexagonal tiling logic
+- [x] Ensure each hex can be clicked, changing its color or texture as a visual feedback
