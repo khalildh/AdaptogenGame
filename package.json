@@ -6,6 +6,7 @@
     "concurrently": "^8.2.2"
   },
   "scripts": {
+    "install": "concurrently \"cd hex-game-backend && yarn install\" \"cd hex-game && yarn install\"",
     "start:backend": "cd hex-game-backend && yarn start",
     "start:frontend": "cd hex-game && yarn start",
     "dev": "concurrently \"yarn start:backend\" \"yarn start:frontend\""

@@ -1,98 +1,105 @@
-import React, { useEffect, useRef } from 'react';
-import * as PIXI from 'pixi.js';
-import { hexToPoint, Grid, Hex } from 'honeycomb-grid';
-import socketService from '../services/socketService';
+import React, { useEffect, useRef } from "react"
+import * as PIXI from "pixi.js"
+import { hexToPoint, Grid, Hex } from "honeycomb-grid"
+import socketService from "../services/socketService"
 
 const terrainColors = {
-    "Forest": 0x228B22,  // Forest Green
-    "Mountain": 0x808080, // Gray
-    "Plains": 0x90EE90,  // Light Green
-    "Water": 0x1E90FF,   // Dodger Blue
-    "Desert": 0xF4A460   // Sandy Brown
-};
+  Forest: 0x228b22, // Forest Green
+  Mountain: 0x808080, // Gray
+  Plains: 0x90ee90, // Light Green
+  Water: 0x1e90ff, // Dodger Blue
+  Desert: 0xf4a460, // Sandy Brown
+}
 
-const horizontalOffset = 0;
-const verticalOffset = 0;
+const horizontalOffset = 0
+const verticalOffset = 0
 
 const GameBoard = ({ grid, gameId }) => {
-    grid = JSON.parse(grid);
-    console.log(grid.coordinates)
-    grid = Grid.fromJSON(grid)
-    console.log(grid)
-    const containerRef = useRef(null);
-    const appRef = useRef(null);
-    const hexTextRefs = useRef({});
+  grid = JSON.parse(grid)
+  console.log(grid.coordinates)
+  grid = Grid.fromJSON(grid)
+  console.log(grid)
+  const containerRef = useRef(null)
+  const appRef = useRef(null)
+  const hexTextRefs = useRef({})
 
-    useEffect(() => {
-        // Initialize PIXI application
-        appRef.current = new PIXI.Application({ backgroundAlpha: 0, width: 1000, height: 1000 });
-        appRef.current.view.addEventListener('click', handleMouseclick);
-        
-        function handleMouseclick({ offsetX, offsetY }) {
-            const hex = grid.pointToHex(
-                { x: offsetX - horizontalOffset, y: offsetY - verticalOffset},
-                { allowOutside: false }
-            )
+  useEffect(() => {
+    // Initialize PIXI application
+    appRef.current = new PIXI.Application({
+      backgroundAlpha: 0,
+      width: 1000,
+      height: 1000,
+    })
+    appRef.current.view.addEventListener("click", handleMouseclick)
 
-            if (hex) {
-                console.log(hex);
-                // Emit socket event with hex coordinates and game ID
-                socketService.emit('hexClicked', {
-                    gameId: gameId,
-                    hexCoordinates: hex.toString()
-                });
-            }
-        };
+    function handleMouseclick({ offsetX, offsetY }) {
+      const hex = grid.pointToHex(
+        { x: offsetX - horizontalOffset, y: offsetY - verticalOffset },
+        { allowOutside: false }
+      )
 
-        // Append the PIXI canvas to the container
-        if (containerRef.current) {
-            containerRef.current.appendChild(appRef.current.view);
-        }
+      if (hex) {
+        console.log(hex)
+        // Emit a message before sending the hexClicked event
+        socketService.emit("message", `Clicked on hex: ${hex.toString()}`)
+        // socketService.emit("message2", `2Clicked on hex: ${hex.toString()}`)
+        // Use socketService to emit the hexClicked event
+        socketService.emit("hexClicked", gameId, hex.toString())
+      }
+    }
 
-        const graphics = new PIXI.Graphics();
-        appRef.current.stage.addChild(graphics);
+    // Append the PIXI canvas to the container
+    if (containerRef.current) {
+      containerRef.current.appendChild(appRef.current.view)
+    }
 
-        function renderHex(hex) {
-            const corners = hex.corners.map(corner => ({
-                x: corner.x + horizontalOffset,
-                y: corner.y + verticalOffset
-            }));
+    const graphics = new PIXI.Graphics()
+    appRef.current.stage.addChild(graphics)
 
-            graphics.beginFill(0x228B22);
-            graphics.drawShape(new PIXI.Polygon(corners));
-            graphics.endFill();
+    function renderHex(hex) {
+      const corners = hex.corners.map((corner) => ({
+        x: corner.x + horizontalOffset,
+        y: corner.y + verticalOffset,
+      }))
 
-            // Remove existing text if it exists
-            if (hexTextRefs.current[hex.toString()]) {
-                appRef.current.stage.removeChild(hexTextRefs.current[hex.toString()]);
-            }
+      graphics.beginFill(0x228b22)
+      graphics.drawShape(new PIXI.Polygon(corners))
+      graphics.endFill()
 
-            // Add text to the center of the hex
-            const hexPoint = hexToPoint(hex);
-            const text = new PIXI.Text(`${hex}`, {
-                fontFamily: 'Arial',
-                fontSize: 12,
-                fill: 0x000000,
-                align: 'center'
-            });
-            text.anchor.set(0.5);
-            text.position.set(hexPoint.x + horizontalOffset, hexPoint.y + verticalOffset);
-            appRef.current.stage.addChild(text);
-            hexTextRefs.current[hex.toString()] = text;
-        }
+      // Remove existing text if it exists
+      if (hexTextRefs.current[hex.toString()]) {
+        appRef.current.stage.removeChild(hexTextRefs.current[hex.toString()])
+      }
 
-        graphics.lineStyle(1, 0x999999);
-        grid.forEach(renderHex);
+      // Add text to the center of the hex
+      const hexPoint = hexToPoint(hex)
+      const text = new PIXI.Text(`${hex}`, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        fill: 0x000000,
+        align: "center",
+      })
+      text.anchor.set(0.5)
+      text.position.set(
+        hexPoint.x + horizontalOffset,
+        hexPoint.y + verticalOffset
+      )
+      appRef.current.stage.addChild(text)
+      hexTextRefs.current[hex.toString()] = text
+    }
 
-        // Cleanup function
-        return () => {
-            if (appRef.current) {
-                appRef.current.destroy(true);
-            }
-        };
-    }, [grid, gameId]);
+    graphics.lineStyle(1, 0x999999)
+    grid.forEach(renderHex)
 
-    return <div ref={containerRef} />;
-};
+    // Cleanup function
+    return () => {
+      if (appRef.current) {
+        appRef.current.destroy(true)
+      }
+    }
+  }, [grid, gameId])
 
-export default GameBoard;
+  return <div ref={containerRef} />
+}
+
+export default GameBoard
