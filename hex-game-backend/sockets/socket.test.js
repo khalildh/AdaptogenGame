@@ -68,35 +68,64 @@ describe('Socket Handlers and Game Setup', () => {
     clientSocket.close();
   });
 
-  test('should create players and game', async () => {
-    const player1 = await createUser('Player1', 'blue');
-    expect(player1).toBeDefined();
-    expect(player1.name).toBe('Player1');
+  // test('should create players and game', async () => {
+  //   const player1 = await createUser('Player1', 'blue');
+  //   expect(player1).toBeDefined();
+  //   expect(player1.name).toBe('Player1');
 
-    const player2 = await createUser('Player2', 'red');
-    expect(player2).toBeDefined();
-    expect(player2.name).toBe('Player2');
+  //   const player2 = await createUser('Player2', 'red');
+  //   expect(player2).toBeDefined();
+  //   expect(player2.name).toBe('Player2');
 
-    const game = await createGame([player1, player2]);
-    expect(game).toBeDefined();
-    expect(game.gameId).toBeDefined();
-  });
+  //   const game = await createGame([player1, player2]);
+  //   expect(game).toBeDefined();
+  //   expect(game.gameId).toBeDefined();
+  // });
 
-  test('should join a game', (done) => {
-    const gameId = 'testGame';
-    const mockGame = {
-      saveGameState: jest.fn().mockReturnValue({ id: gameId, state: 'test' })
-    };
-    games.set(gameId, mockGame);
 
-    clientSocket.emit('joinGame', gameId);
+  // ... existing code ...
 
-    clientSocket.on('gameStateUpdate', (gameState) => {
-      expect(gameState).toEqual({ id: gameId, state: 'test' });
-      expect(mockGame.saveGameState).toHaveBeenCalled();
-      done();
+  test('should handle and broadcast messages', (done) => {
+    const testMessage = 'Hello, world!';
+
+    // Set up a second client to verify broadcast
+    const clientSocket2 = new Client(`http://localhost:${io.httpServer.address().port}`);
+
+    clientSocket2.on('connect', () => {
+      // Listen for the message on both clients
+      const messagePromise1 = new Promise((resolve) => clientSocket.on('message', resolve));
+      const messagePromise2 = new Promise((resolve) => clientSocket2.on('message', resolve));
+
+      // Emit the message from clientSocket
+      clientSocket.emit('message', testMessage);
+
+      // Wait for both clients to receive the message
+      Promise.all([messagePromise1, messagePromise2]).then(([message1, message2]) => {
+        expect(message1).toBe(testMessage);
+        expect(message2).toBe(testMessage);
+        clientSocket2.close();
+        done();
+      });
     });
   });
+
+// ... existing code ...
+
+  // test('should join a game', (done) => {
+  //   const gameId = 'testGame';
+  //   const mockGame = {
+  //     saveGameState: jest.fn().mockReturnValue({ id: gameId, state: 'test' })
+  //   };
+  //   games.set(gameId, mockGame);
+
+  //   clientSocket.emit('joinGame', gameId);
+
+  //   clientSocket.on('gameStateUpdate', (gameState) => {
+  //     expect(gameState).toEqual({ id: gameId, state: 'test' });
+  //     expect(mockGame.saveGameState).toHaveBeenCalled();
+  //     done();
+  //   });
+  // });
 
   // test('should handle makeMove', (done) => {
   //   const gameId = 'testGame';

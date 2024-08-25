@@ -16,14 +16,14 @@
   - [ ] Hex clicks (game moves)
 
 ### Client-side Setup:
-- [ ] Install Socket.IO client: `npm install socket.io-client@4.4.0`
-- [ ] Create a socket connection in the React app
-- [ ] Implement event listeners for:
-  - [ ] Connection status
-  - [ ] Game state updates
+- [x] Install Socket.IO client: `npm install socket.io-client@4.4.0`
+- [x] Create a socket connection in the React app
+- [x] Implement event listeners for:
+  - [x] Connection status
+  - [x] Game state updates
 
 ### Implement Real-time Communication:
-- [ ] Modify the server to emit updates on game state changes
+- [x] Modify the server to emit updates on game state changes
 - [ ] Update the client to send hex click events to the server
 - [ ] Ensure the client updates its state based on received events
 

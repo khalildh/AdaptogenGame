@@ -1,0 +1,13 @@
+{
+  "name": "hex-game-project",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "scripts": {
+    "start:backend": "cd hex-game-backend && yarn start",
+    "start:frontend": "cd hex-game && yarn start",
+    "dev": "concurrently \"yarn start:backend\" \"yarn start:frontend\""
+  }
+}

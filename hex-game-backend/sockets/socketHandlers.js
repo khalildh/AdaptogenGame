@@ -1,6 +1,11 @@
 function setupSocketHandlers(io, games) {
     io.on('connection', (socket) => {
       console.log('New client connected');
+
+      socket.on('message', (message) => {
+        console.log("message recieved, and will emit:", message)
+        io.emit('message', message)
+      })
   
       socket.on('joinGame', (gameId) => {
         socket.join(gameId);
@@ -21,10 +26,35 @@ function setupSocketHandlers(io, games) {
           }
         }
       });
+
+      // socket.on('exportGame', (gameId) => {
+      //   console.log(`Exporting game with ID: ${gameId}`);
+      //   const game = games.get(gameId);
+      //   if (game) {
+      //     socket.emit('gameExport', game.saveGameState());
+      //   } else {
+      //     console.log(`Game not found for export with ID: ${gameId}`);
+      //     socket.emit('gameExport', { error: 'Game not found' });
+      //   }
+      // });
+      
   
       socket.on('disconnect', () => {
         console.log('Client disconnected');
       });
+
+    //   socket.on('hexClicked', ({ gameId, hexCoordinates }) => {
+    //   console.log(`Hex clicked in game ${gameId}: ${hexCoordinates}`);
+    //   const game = games.get(gameId);
+    //   if (game) {
+    //     // Update game state based on the clicked hex
+    //     // This is a placeholder - replace with actual game logic
+    //     const updatedState = game.handleHexClick(hexCoordinates);
+    //     io.to(gameId).emit('gameStateUpdate', updatedState);
+    //   }
+    // });
+
+
     });
   }
   

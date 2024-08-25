@@ -2,7 +2,7 @@ const { defineHex, rectangle, Grid } = require('honeycomb-grid');
 
 const terrains = ["Forest", "Mountain", "Plains", "Water", "Desert"];
 
-const Tile = defineHex({ dimensions: 30, origin: 'topLeft' });
+const Tile = defineHex({ dimensions: 50, origin: 'topLeft' });
 
 function createTerrain() {
   const randomIndex = Math.floor(Math.random() * terrains.length);
