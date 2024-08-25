@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { defineHex, Grid, rectangle } from 'honeycomb-grid'
+import { defineHex, Grid, rectangle, spiral, hexToPoint } from 'honeycomb-grid'
 import * as PIXI from 'pixi.js';
 
 // Define possible terrain types as an array of strings
@@ -14,6 +14,9 @@ const terrainColors = {
     "Desert": 0xF4A460   // Sandy Brown
 };
 
+const horizontalOffset = 500; // Adjust this value to shift more or less
+const verticalOffset = 300
+
 // Function to randomly assign a terrain type to a tile
 function createTerrain() {
   const randomIndex = Math.floor(Math.random() * terrains.length);
@@ -23,24 +26,44 @@ function createTerrain() {
 export const HexGridPage = () => {
     const containerRef = useRef(null);
     const appRef = useRef(null);
+    const hexTextRefs = useRef({}); // New ref to store text objects
 
 
     useEffect(() => {
         // Initialize PIXI application
-        appRef.current = new PIXI.Application({ backgroundAlpha: 0, width: 800, height: 600 });
+        appRef.current = new PIXI.Application({ backgroundAlpha: 0, width: 1000, height: 1000 });
         appRef.current.view.addEventListener('click', ({ offsetX, offsetY }) => {
             const hex = grid.pointToHex(
-              { x: offsetX, y: offsetY },
-              { allowOutside: false }
+                { x: offsetX - horizontalOffset, y: offsetY - verticalOffset},
+                { allowOutside: false }
             )
-
-            hex.setTerrain("Forest")
 
             if (hex) {
                 console.log(hex)
+                hex.setTerrain("Forest")
                 renderHex(hex)
             }
           });
+
+          let lastHoveredHex = null;
+
+        // Add mousemove and mouseout event listeners
+        appRef.current.view.addEventListener('mousemove', handleMouseMove);
+        // appRef.current.view.addEventListener('mouseout', handleMouseOut);
+
+        function handleMouseMove({ offsetX, offsetY }) {
+            const hex = grid.pointToHex(
+                { x: offsetX - horizontalOffset, y: offsetY - verticalOffset },
+                { allowOutside: false }
+            );
+
+            if (hex && hex !== lastHoveredHex) {
+                console.log(hex)
+                lastHoveredHex = hex;
+
+            }    
+
+        }
 
 
         // Append the PIXI canvas to the container
@@ -49,15 +72,15 @@ export const HexGridPage = () => {
         }
 
         const graphics = new PIXI.Graphics();
-        class Tile extends defineHex({ dimensions: 30, origin: 'topLeft' }) {
+        class Tile extends defineHex({ dimensions: 40, origin: 'topLeft' }) {
             constructor(props) {
                 super(props);
                 this.terrain = createTerrain();
             }
 
-            get prototypeProp() {
-              return `this property won't be present in the instance, only in the prototype`
-            }
+            // get prototypeProp() {
+            //   return `this property won't be present in the instance, only in the prototype`
+            // }
 
             // New terrain setter method
             setTerrain(newTerrain) {
@@ -71,20 +94,51 @@ export const HexGridPage = () => {
             
 
             // methods always exist in the prototype
-            customMethod() {}
+            // customMethod() {}
           }
         // const Tile = defineHex({ dimensions: 30 });
-        const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+        // const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+        const grid = new Grid(Tile, spiral({ radius: 5 }))
 
         function renderHex(hex) {
+            const corners = hex.corners.map(corner => ({
+                x: corner.x + horizontalOffset,
+                y: corner.y + verticalOffset
+            }));
+
+            console.log("center", hex.center)
+
+            console.log(corners)
+            console.log("hexToPoint", hexToPoint(hex));
+            const hexPoint = hexToPoint(hex);
             graphics.beginFill(terrainColors[hex.terrain]);
-            graphics.drawShape(new PIXI.Polygon(hex.corners));
+            // graphics.drawShape(new PIXI.Polygon(hex.corners));
+            graphics.drawShape(new PIXI.Polygon(corners));
+
             graphics.endFill();
+
+            // Remove existing text if it exists
+            if (hexTextRefs.current[hex.toString()]) {
+                appRef.current.stage.removeChild(hexTextRefs.current[hex.toString()]);
+            }
+
+            // Add text to the center of the hex
+    const text = new PIXI.Text(`${hex.terrain} \n ${hex}`, {
+        fontFamily: 'Arial',
+        fontSize: 12,
+        fill: 0x000000,
+        align: 'center'
+    });
+    text.anchor.set(0.5);
+    text.position.set(hexPoint.x + horizontalOffset, hexPoint.y + verticalOffset);
+    appRef.current.stage.addChild(text);
+    hexTextRefs.current[hex.toString()] = text;
+
         }
 
         graphics.lineStyle(1, 0x999999);
-        grid.forEach(renderHex);
         appRef.current.stage.addChild(graphics);
+        grid.forEach(renderHex);
 
         // Cleanup function
         return () => {
