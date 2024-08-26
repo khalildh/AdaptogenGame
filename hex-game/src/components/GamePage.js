@@ -18,6 +18,7 @@ const styles = {
     borderRadius: "5px",
     padding: "10px",
     maxHeight: "70vh",
+    minHeight: "100px", // Add a minimum height
   },
   message: {
     backgroundColor: "#f1f1f1",
