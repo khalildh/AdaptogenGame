@@ -1,3 +1,6 @@
+const { games } = require("../store/gameStore")
+const { boards } = require("../store/boardStore")
+
 function setupSocketHandlers(io) {
   io.on("connection", (socket) => {
     console.log("New client connected")
@@ -12,13 +15,21 @@ function setupSocketHandlers(io) {
       io.emit("message2", message2)
     })
 
-    socket.on("hexClicked", (arg1, arg2) => {
+    socket.on("hexClicked", (arg1, arg2, arg3, arg4) => {
       console.log(`Server received hexClicked event arg1: ${arg1}`)
       console.log(`Server received hexClicked event arg2: ${arg2}`)
-      // let parseHex = JSON.parse(arg2)
-      // console.log(parseHex)
-      // io.emit("hexClicked", hexId) // Broadcast to all clients
-      // io.emit("message", `Hex clicked: ${hexId}`) // Keep the existing message emission
+      console.log(`Server received hexClicked event arg2: ${arg3}`)
+      console.log(`Server received hexClicked event arg2: ${arg4}`)
+      const game = games.get(arg1)
+      console.log(game)
+      const board = boards.get(arg1)
+      console.log(board)
+      const grid = board.grid
+      const hex = grid.getHex([arg2, arg3])
+      console.log(hex)
+      const newTerrain = "Water"
+      hex.setTerrain(newTerrain)
+      io.emit("hexchanged", arg1, arg2, arg3, newTerrain)
     })
 
     socket.on("joinGame", (gameId) => {
