@@ -106,7 +106,7 @@ export const GamePage = () => {
             { id: "player1", name: "Player 1", color: "blue" },
             { id: "player2", name: "Player 2", color: "red" },
           ],
-          boardConfig: { width: 10, height: 10 },
+          boardConfig: { width: 3, height: 3 },
         }),
       })
       const data = await response.json()
@@ -131,8 +131,9 @@ export const GamePage = () => {
       ) : (
         <>
           <h2>Game ID: {gameId}</h2>
+          <h3> Player 2</h3>
           {grid && <GameBoard grid={grid} gameId={gameId} />}
-
+          <h3> Player 1</h3>
           <div style={styles.messageBox} ref={messageListRef}>
             {messages.map((message, index) => (
               <div key={index} style={styles.message}>

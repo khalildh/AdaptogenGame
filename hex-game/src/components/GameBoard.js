@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js"
 import { hexToPoint, Grid, defineHex, Hex } from "honeycomb-grid"
 import socketService from "../services/socketService"
 
-class CustomHex extends defineHex({ dimensions: 60, origin: "topLeft" }) {
+class CustomHex extends defineHex({ dimensions: 80, origin: "topLeft" }) {
   static create(coordinates, custom) {
     const hex = new CustomHex(coordinates)
     hex.terrain = custom
@@ -38,8 +38,8 @@ const GameBoard = ({ grid, gameId }) => {
     // Initialize PIXI application
     appRef.current = new PIXI.Application({
       backgroundAlpha: 0,
-      width: 1100,
-      height: 1000,
+      width: 500,
+      height: 404,
     })
     appRef.current.view.addEventListener("click", handleMouseclick)
 
@@ -87,7 +87,7 @@ const GameBoard = ({ grid, gameId }) => {
       const hexPoint = hexToPoint(hex)
       const text = new PIXI.Text(`${hex}`, {
         fontFamily: "Arial",
-        fontSize: 8,
+        fontSize: 12,
         fill: 0x000000,
         align: "center",
       })

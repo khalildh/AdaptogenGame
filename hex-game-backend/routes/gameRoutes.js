@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const Game = require("../models/Game")
+const Piece = require("../models/Piece")
 const { v4: uuidv4 } = require("uuid")
 
 // In-memory storage for active games
@@ -18,9 +19,30 @@ router.post("/", (req, res) => {
       height: boardConfig.height,
     })
     game.initializeGame(playerConfigs)
+    console.log(playerConfigs)
+
+    // Create 3 pieces for the game
+    const pieces = [];
+    for (let i = -1; i < 2; i++) {
+      const pieceId = uuidv4();
+      const playerId = playerConfigs[0].id;
+      const position = { x: i, y: 0 }; // Simple positioning, adjust as needed
+      const piece = new Piece(pieceId, playerId, gameId, game.board.id, position);
+      pieces.push(piece);
+    }
+
+
     games.set(gameId, game)
     console.log(`Game created with ID: ${gameId}`)
-    res.status(200).json({ gameId, game: game.saveGameState() })
+    console.log("Pieces")
+    console.log(pieces)
+    res.status(200).json({ 
+      gameId, 
+      game: game.saveGameState(),
+      pieces: pieces.map(p => {
+          return p.serializeState()
+      })
+    })
   } catch (error) {
     console.error("Error creating game:", error)
     res
